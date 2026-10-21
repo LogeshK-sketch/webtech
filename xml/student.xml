@@ -1,0 +1,16 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE students SYSTEM "students.dtd">
+
+<students>
+    <student>
+        <name>Arun Kumar</name>
+        <email>arun@example.com</email>
+        <department>IT</department>
+    </student>
+    <student>
+        <name>Priya</name>
+        <email>priya@example.com</email>
+        <department>CSE</department>
+    </student>
+</students>

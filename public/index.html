@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html lang="en" ng-app="studentApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Management</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eeeeee;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .box {
+            max-width: 650px;
+            margin: 25px auto;
+            padding: 25px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        input, select {
+            width: 95%;
+            padding: 10px;
+            margin: 7px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: navy;
+            color: white;
+            padding: 10px 14px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .delete {
+            background: #b00020;
+        }
+
+        .message { color: green; }
+        .error { color: red; }
+
+        li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body ng-controller="StudentController">
+<div class="box">
+    <h2>Student Registration</h2>
+
+    <form ng-submit="addStudent()">
+        <input id="name" type="text"
+               ng-model="form.name"
+               placeholder="Student name" required>
+
+        <input id="email" type="email"
+               ng-model="form.email"
+               placeholder="Email address" required>
+
+        <select id="department"
+                ng-model="form.department" required>
+            <option value="">Select department</option>
+            <option value="IT">Information Technology</option>
+            <option value="CSE">Computer Science</option>
+            <option value="ECE">Electronics and Communication</option>
+        </select>
+
+        <button id="registerBtn" type="submit">
+            Register Student
+        </button>
+    </form>
+
+    <button id="viewBtn" ng-click="getStudents()">
+        View Students
+    </button>
+
+    <p class="message" id="message">{{message}}</p>
+    <p class="error" id="error">{{error}}</p>
+
+    <h3>Registered Students</h3>
+
+    <p ng-if="students.length === 0">No students to display.</p>
+
+    <ul>
+        <li ng-repeat="student in students track by student._id">
+            <strong>{{student.name}}</strong><br>
+            {{student.email}} — {{student.department}}
+            <button class="delete"
+                    ng-click="deleteStudent(student._id)">
+                Delete
+            </button>
+        </li>
+    </ul>
+</div>
+
+<script>
+    var app = angular.module("studentApp", []);
+
+    app.controller("StudentController", function($scope, $http) {
+        $scope.students = [];
+        $scope.form = {};
+
+        $scope.getStudents = function() {
+            $scope.error = "";
+
+            $http.get("/students")
+                .then(function(response) {
+                    $scope.students = response.data;
+                })
+                .catch(function() {
+                    $scope.error = "Unable to load students";
+                });
+        };
+
+        $scope.addStudent = function() {
+            $scope.message = "";
+            $scope.error = "";
+
+            $http.post("/students", $scope.form)
+                .then(function(response) {
+                    $scope.message = response.data.message;
+                    $scope.form = {};
+                    $scope.getStudents();
+                })
+                .catch(function(response) {
+                    $scope.error =
+                        response.data.message ||
+                        "Unable to register student";
+                });
+        };
+
+        $scope.deleteStudent = function(id) {
+            $scope.message = "";
+            $scope.error = "";
+
+            $http.delete("/students/" + encodeURIComponent(id))
+                .then(function(response) {
+                    $scope.message = response.data.message;
+                    $scope.getStudents();
+                })
+                .catch(function(response) {
+                    $scope.error =
+                        response.data.message ||
+                        "Unable to delete student";
+                });
+        };
+
+        $scope.getStudents();
+    });
+</script>
+</body>
+</html>
